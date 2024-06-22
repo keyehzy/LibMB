@@ -6,7 +6,7 @@
 void HubbardChain::hopping_term(Expression& result) const {
   for (Operator::Spin spin : {Up, Down}) {
     for (std::size_t i = 0; i < m_size; i++) {
-      result += one_body<Fermion>(-m_u, spin, i, spin, i);
+      result += density<Fermion>(-m_mu, spin, i);
       result += hopping<Fermion>(-m_t, spin, i, (i + 1) % m_size);
     }
   }

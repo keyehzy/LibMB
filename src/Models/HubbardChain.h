@@ -10,7 +10,8 @@ using enum Operator::Spin;
 
 class HubbardChain : public Model {
  public:
-  HubbardChain(double t, double u, size_t n) : m_t(t), m_u(u), m_size(n) {}
+  HubbardChain(double mu, double t, double u, size_t n)
+      : m_mu(mu), m_t(t), m_u(u), m_size(n) {}
 
   ~HubbardChain() override {}
 
@@ -26,6 +27,7 @@ class HubbardChain : public Model {
     return result;
   }
 
+  double m_mu;
   double m_t;
   double m_u;
   size_t m_size;

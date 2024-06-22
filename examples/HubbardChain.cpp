@@ -15,17 +15,17 @@ using enum Operator::Spin;        // Up, Down
 
 class HubbardChain : public Model {
  public:
-  HubbardChain(double t, double u, size_t n) : m_t(t), m_u(u), m_size(n) {}
+  HubbardChain(double mu, double t, double u, size_t n)
+      : m_mu(mu), m_t(t), m_u(u), m_size(n) {}
 
   ~HubbardChain() override {}
 
  private:
   void hopping_term(Expression& result) const {
     for (Operator::Spin spin : {Up, Down}) {
+      // Chemical potential and Hopping
       for (std::size_t i = 0; i < m_size; i++) {
-        // Chemical potential
-        result += one_body<Fermion>(-m_u, spin, i, spin, i);
-        // Hopping
+        result += density<Fermion>(-m_mu, spin, i);
         result += hopping<Fermion>(-m_t, spin, i, (i + 1) % m_size);
       }
     }
@@ -45,6 +45,7 @@ class HubbardChain : public Model {
     return result;
   }
 
+  double m_mu;
   double m_t;
   double m_u;
   size_t m_size;
@@ -53,10 +54,11 @@ class HubbardChain : public Model {
 int main() {
   const std::size_t size = 8;
   const std::size_t particles = 8;
+  const double mu = 0.0;
   const double t = 1.0;
   const double u = 2.0;
 
-  HubbardChain model(t, u, size);
+  HubbardChain model(mu, t, u, size);
 
   // Construct a basis with total Spin_z equal to zero
   FermionicBasis basis(size, particles, new TotalSpinFilter(0));
