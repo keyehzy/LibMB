@@ -41,7 +41,7 @@ int main() {
   LIBMB_ASSERT(m.is_hermitian());
 
   std::cout << "This is the compact state" << std::endl;
-  std::cout << basis.state_string(basis.element(0)) << std::endl;
+  std::cout << state_string(basis.element(0), basis.orbitals()) << std::endl;
 
   arma::cx_vec eigval;
   arma::cx_mat eigvec;
@@ -59,7 +59,8 @@ int main() {
                 << std::real(
                        sorted_terms[i].coefficient() *
                        std::conj(sorted_terms[i].coefficient()))
-                << "   " << basis.state_string(sorted_terms[i].operators())
+                << "   "
+                << state_string(sorted_terms[i].operators(), basis.orbitals())
                 << std::endl;
     }
   }

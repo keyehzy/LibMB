@@ -23,16 +23,15 @@ static constexpr std::string_view unicode_up_arrow_cell = "\u2191 ";
 static constexpr std::string_view unicode_down_arrow_cell = " \u2193";
 static constexpr std::string_view unicode_double_occ_cell = "\u2191\u2193";
 
-std::string Basis::state_string(const BasisElement& element) const {
-  LIBMB_ASSERT(contains(element));
-  std::vector<int> up(m_orbitals, 0);
-  std::vector<int> down(m_orbitals, 0);
+std::string state_string(const BasisElement& element, std::size_t orbitals) {
+  std::vector<int> up(orbitals, 0);
+  std::vector<int> down(orbitals, 0);
   prepare_up_and_down_representation(element, up, down);
 
   std::stringstream out;
   out << "|";
 
-  for (std::size_t i = 0; i < m_orbitals; i++) {
+  for (std::size_t i = 0; i < orbitals; i++) {
     switch (2 * up[i] + down[i]) {
       case 0:
         out << unicode_empty_cell;
@@ -50,7 +49,7 @@ std::string Basis::state_string(const BasisElement& element) const {
         LIBMB_UNREACHABLE();
         break;
     }
-    if (i < m_orbitals - 1) {
+    if (i < orbitals - 1) {
       out << ",";
     }
   }

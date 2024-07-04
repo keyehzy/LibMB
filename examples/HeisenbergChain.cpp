@@ -83,7 +83,8 @@ static void analysis(
     std::cout << std::fixed
               << sorted_terms[i].coefficient() *
                      std::conj(sorted_terms[i].coefficient())
-              << "  " << basis.state_string(sorted_terms[i].operators())
+              << "  "
+              << state_string(sorted_terms[i].operators(), basis.orbitals())
               << std::endl;
   }
 }

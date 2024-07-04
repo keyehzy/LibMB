@@ -57,8 +57,6 @@ class Basis {
     m_basis_map.sort(comp);
   }
 
-  std::string state_string(const BasisElement& element) const;
-
  protected:
   void generate_basis();
   virtual void generate_combinations(BasisElement&, size_t, size_t, size_t) = 0;
@@ -71,3 +69,5 @@ class Basis {
 
 void prepare_up_and_down_representation(
     const BasisElement& element, std::vector<int>& up, std::vector<int>& down);
+
+std::string state_string(const BasisElement& element, std::size_t orbitals);

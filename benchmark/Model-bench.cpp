@@ -14,10 +14,11 @@ static void BM_CreateHubbardChainMatrixElements(benchmark::State& state) {
     state.PauseTiming();
     const std::size_t size = state.range(0);
     const std::size_t particles = state.range(1);
+    const double mu = 0.0;
     const double t = 1.0;
     const double u = 2.0;
 
-    HubbardChain model(t, u, size);
+    HubbardChain model(mu, t, u, size);
     FermionicBasis basis(size, particles);
     SparseMatrix<std::complex<double>> m;
     state.ResumeTiming();

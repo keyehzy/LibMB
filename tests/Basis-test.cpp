@@ -220,7 +220,7 @@ TEST(StateStringTest, EmptyElement) {
   BasisElement element;
   FermionicBasis basis(5, 0, /*allow_double_occupancy=*/true);
   std::string expected_state = "|  ,  ,  ,  ,  >";
-  std::string actual_state = basis.state_string(element);
+  std::string actual_state = state_string(element, basis.orbitals());
   EXPECT_EQ(actual_state, expected_state);
 }
 
@@ -229,7 +229,7 @@ TEST(StateStringTest, SingleUp) {
   element.push_back(Operator::creation<Fermion>(Up, 1));
   FermionicBasis basis(5, 1, /*allow_double_occupancy=*/true);
   std::string expected_state = "|  ,\u2191 ,  ,  ,  >";
-  std::string actual_state = basis.state_string(element);
+  std::string actual_state = state_string(element, basis.orbitals());
   EXPECT_EQ(actual_state, expected_state);
 }
 
@@ -239,7 +239,7 @@ TEST(StateStringTest, MultipleOperators) {
       Operator::creation<Fermion>(Up, 3)};
   FermionicBasis basis(5, 3, /*allow_double_occupancy=*/true);
   std::string expected_state = "|\u2191 , \u2193,  ,\u2191 ,  >";
-  std::string actual_state = basis.state_string(element);
+  std::string actual_state = state_string(element, basis.orbitals());
   EXPECT_EQ(actual_state, expected_state);
 }
 
@@ -249,6 +249,6 @@ TEST(StateStringTest, AllUpAndDown) {
       Operator::creation<Fermion>(Up, 1), Operator::creation<Fermion>(Down, 1)};
   FermionicBasis basis(5, 4, /*allow_double_occupancy=*/true);
   std::string expected_state = "|\u2191\u2193,\u2191\u2193,  ,  ,  >";
-  std::string actual_state = basis.state_string(element);
+  std::string actual_state = state_string(element, basis.orbitals());
   EXPECT_EQ(actual_state, expected_state);
 }
