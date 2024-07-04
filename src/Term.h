@@ -63,11 +63,23 @@ class Term {
     return Term(m_coefficient, new_operators);
   }
 
+  Term product(std::complex<double> other) const {
+    return Term(other * m_coefficient, m_operators);
+  }
+
   friend Term operator*(const Term& lhs, const Term& rhs) {
     return lhs.product(rhs);
   }
 
   friend Term operator*(const Term& lhs, const std::vector<Operator>& rhs) {
+    return lhs.product(rhs);
+  }
+
+  friend Term operator*(const Term& lhs, std::complex<double> rhs) {
+    return lhs.product(rhs);
+  }
+
+  friend Term operator*(std::complex<double> rhs, const Term& lhs) {
     return lhs.product(rhs);
   }
 
@@ -91,11 +103,11 @@ class Term {
 
 template <Operator::Statistics S>
 Term one_body(
-    Term::CoeffType coefficient, Operator::Spin spin1, std::size_t orbital1,
-    Operator::Spin spin2, std::size_t orbital2) {
+    Operator::Spin spin1, std::size_t orbital1, Operator::Spin spin2,
+    std::size_t orbital2) {
   return Term(
-      coefficient, {Operator::creation<S>(spin1, orbital1),
-                    Operator::annihilation<S>(spin2, orbital2)});
+      1.0, {Operator::creation<S>(spin1, orbital1),
+            Operator::annihilation<S>(spin2, orbital2)});
 }
 
 template <Operator::Statistics S>

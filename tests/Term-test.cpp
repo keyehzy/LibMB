@@ -167,7 +167,7 @@ TEST(TermTest, AdjointManyBody) {
 }
 
 TEST(TermTest, OneBodyTerm) {
-  Term term = one_body<Fermion>(2.5, Up, 0, Down, 1);
+  Term term = 2.5 * one_body<Fermion>(Up, 0, Down, 1);
 
   std::vector<Operator> operators = {
       Operator::creation<Fermion>(Up, 0),

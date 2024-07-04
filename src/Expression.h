@@ -167,8 +167,8 @@ template <Operator::Statistics S>
 Expression hopping(
     double t, Operator::Spin spin, std::size_t i, std::size_t j) {
   return add(
-      one_body<S>(t, spin, i, spin, j),
-      one_body<S>(t, spin, i, spin, j).adjoint());
+      t * one_body<S>(spin, i, spin, j),
+      t * one_body<S>(spin, i, spin, j).adjoint());
 }
 
 // NOTE: These are only spin-1/2 operators. We implement them here in terms of

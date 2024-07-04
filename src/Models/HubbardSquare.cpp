@@ -15,13 +15,13 @@ void HubbardSquare::hopping_term(Expression& result) const {
         size_t dsti = i < m_nx - 1 ? i + 1 : 0;
         size_t dstj = j < m_ny - 1 ? j + 1 : 0;
         result +=
-            one_body<Fermion>(-m_t, spin, index(i, j), spin, index(dsti, j));
+            -m_t * one_body<Fermion>(spin, index(i, j), spin, index(dsti, j));
         result +=
-            one_body<Fermion>(-m_t, spin, index(dsti, j), spin, index(i, j));
+            -m_t * one_body<Fermion>(spin, index(dsti, j), spin, index(i, j));
         result +=
-            one_body<Fermion>(-m_t, spin, index(i, j), spin, index(i, dstj));
+            -m_t * one_body<Fermion>(spin, index(i, j), spin, index(i, dstj));
         result +=
-            one_body<Fermion>(-m_t, spin, index(i, dstj), spin, index(i, j));
+            -m_t * one_body<Fermion>(spin, index(i, dstj), spin, index(i, j));
       }
     }
   }
