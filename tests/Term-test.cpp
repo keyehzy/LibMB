@@ -95,7 +95,7 @@ TEST(TermTest, Product) {
       Operator::annihilation<Fermion>(Up, 3)};
   Term term2(3.0, operators2);
 
-  Term product = term1.product(term2);
+  Term product = term1 * term2;
 
   std::vector<Operator> expected_operators = {
       Operator::creation<Fermion>(Up, 0),
@@ -118,7 +118,7 @@ TEST(TermTest, ProductWithVector) {
       Operator::annihilation<Fermion>(Up, 3)};
   Term term2(3.0, operators2);
 
-  Term product = term1.product(term1).product(term2);
+  Term product = term1 * term1 * term2;
 
   std::vector<Operator> expected_operators = {
       Operator::creation<Fermion>(Up, 0),

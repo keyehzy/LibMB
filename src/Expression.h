@@ -65,110 +65,55 @@ class Expression {
 
   bool operator!=(const Expression& other) const { return !(*this == other); }
 
-  Expression add(const Expression& other) const {
-    Expression result(*this);
-    for (const auto& [operators, coefficient] : other.terms()) {
-      result.insert(Term(coefficient, operators));
-    }
-    return result;
+  Expression operator-() const { return (*this).negate(); }
+
+  Expression operator+(const Expression& rhs) const { return add(rhs); }
+
+  Expression operator-(const Expression& rhs) const {
+    return add(rhs.negate());
   }
 
-  Expression add(const Term& other) const {
-    Expression result(*this);
-    result.insert(other);
-    return result;
+  Expression operator*(const Expression& rhs) const { return product(rhs); }
+
+  Expression operator*(const std::vector<Operator>& rhs) const {
+    return product(rhs);
   }
 
-  friend Expression operator+(const Expression& lhs, const Expression& rhs) {
-    return lhs.add(rhs);
+  Expression operator*(std::complex<double> coefficient) const {
+    return product(coefficient);
   }
 
-  friend Expression operator+(const Expression& lhs, const Term& rhs) {
-    return lhs.add(rhs);
-  }
-
-  Expression product(const Expression& other) const {
-    Expression result;
-    for (const auto& [operators_a, coefficient_a] : terms()) {
-      for (const auto& [operators_b, coefficient_b] : other.terms()) {
-        result.insert(Term(coefficient_a, operators_a)
-                          .product(Term(coefficient_b, operators_b)));
-      }
-    }
-    return result;
-  }
-
-  Expression product(const Term& other) const {
-    Expression result;
-    for (const auto& [operators_a, coefficient_a] : terms()) {
-      result.insert(Term(coefficient_a, operators_a).product(other));
-    }
-    return result;
-  }
-
-  Expression product(const std::vector<Operator>& other) const {
-    Expression result;
-    for (const auto& [operators_a, coefficient_a] : terms()) {
-      result.insert(Term(coefficient_a, operators_a).product(other));
-    }
-    return result;
-  }
-
-  Expression product(double coefficient) const {
-    Expression result;
-    for (const auto& [operators_a, coefficient_a] : terms()) {
-      result.insert(Term(coefficient * coefficient_a, operators_a));
-    }
-    return result;
-  }
-
-  friend Expression operator*(const Expression& lhs, const Expression& rhs) {
-    return lhs.product(rhs);
-  }
-
-  friend Expression operator*(const Expression& lhs, const Term& rhs) {
-    return lhs.product(rhs);
-  }
+  Expression adjoint() const;
 
   friend Expression operator*(
-      const Expression& lhs, const std::vector<Operator>& rhs) {
-    return lhs.product(rhs);
-  }
-
-  friend Expression operator*(double coefficient, const Expression& other) {
-    return other.product(coefficient);
-  }
-
-  Expression adjoint() const {
-    Expression result;
-    for (const auto& [operators, coefficient] : terms()) {
-      result.insert(Term(coefficient, operators).adjoint());
-    }
-    return result;
-  }
-
-  Expression negate() const {
-    Expression result;
-    for (const auto& [operators, coefficient] : terms()) {
-      result.insert(Term(-coefficient, operators));
-    }
-    return result;
+      std::complex<double> coefficient, const Expression& other) {
+    return other * coefficient;
   }
 
   friend std::ostream& operator<<(std::ostream& os, const Expression& e);
 
  private:
+  Expression add(const Expression& other) const;
+  Expression add(const Term& other) const;
+
+  Expression product(const Expression& other) const;
+  Expression product(const Term& other) const;
+  Expression product(const std::vector<Operator>& other) const;
+  Expression product(std::complex<double> coefficient) const;
+
+  Expression negate() const;
+
   ExpressionMap m_terms;
 };
 
-Expression add(const Term& a, const Term& b);
+Expression operator+(const Term& a, const Term& b);
+
+Expression operator-(const Term& a, const Term& b);
 
 template <Operator::Statistics S>
-Expression hopping(
-    double t, Operator::Spin spin, std::size_t i, std::size_t j) {
-  return add(
-      t * one_body<S>(spin, i, spin, j),
-      t * one_body<S>(spin, i, spin, j).adjoint());
+Expression hopping(Operator::Spin spin, std::size_t i, std::size_t j) {
+  return one_body<S>(spin, i, spin, j) +
+         one_body<S>(spin, i, spin, j).adjoint();
 }
 
 // NOTE: These are only spin-1/2 operators. We implement them here in terms of

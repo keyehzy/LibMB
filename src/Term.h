@@ -48,36 +48,15 @@ class Term {
     return *this;
   }
 
-  Term product(const Term& other) const {
-    std::vector<Operator> new_operators = m_operators;
-    new_operators.insert(
-        new_operators.end(), other.m_operators.begin(),
-        other.m_operators.end());
-    return Term(m_coefficient * other.m_coefficient, new_operators);
+  Term operator-() const { return (*this).negate(); }
+
+  Term operator*(const Term& rhs) const { return product(rhs); }
+
+  Term operator*(const std::vector<Operator>& rhs) const {
+    return product(rhs);
   }
 
-  Term product(const std::vector<Operator>& operators) const {
-    std::vector<Operator> new_operators = m_operators;
-    new_operators.insert(
-        new_operators.end(), operators.begin(), operators.end());
-    return Term(m_coefficient, new_operators);
-  }
-
-  Term product(std::complex<double> other) const {
-    return Term(other * m_coefficient, m_operators);
-  }
-
-  friend Term operator*(const Term& lhs, const Term& rhs) {
-    return lhs.product(rhs);
-  }
-
-  friend Term operator*(const Term& lhs, const std::vector<Operator>& rhs) {
-    return lhs.product(rhs);
-  }
-
-  friend Term operator*(const Term& lhs, std::complex<double> rhs) {
-    return lhs.product(rhs);
-  }
+  Term operator*(std::complex<double> rhs) const { return product(rhs); }
 
   friend Term operator*(std::complex<double> rhs, const Term& lhs) {
     return lhs.product(rhs);
@@ -85,18 +64,14 @@ class Term {
 
   friend std::ostream& operator<<(std::ostream& os, const Term& term);
 
-  Term adjoint() const {
-    std::vector<Operator> adj_operators;
-    for (const auto& op : m_operators) {
-      adj_operators.push_back(op.adjoint());
-    }
-    std::reverse(adj_operators.begin(), adj_operators.end());
-    return Term(std::conj(m_coefficient), adj_operators);
-  }
-
-  Term negate() const { return Term(-m_coefficient, m_operators); }
+  Term adjoint() const;
 
  private:
+  Term product(const Term& other) const;
+  Term product(const std::vector<Operator>& operators) const;
+  Term product(std::complex<double> other) const;
+  Term negate() const { return Term(-m_coefficient, m_operators); }
+
   CoeffType m_coefficient;
   std::vector<Operator> m_operators;
 };
@@ -111,32 +86,38 @@ Term one_body(
 }
 
 template <Operator::Statistics S>
-Term density(
-    Term::CoeffType coefficient, Operator::Spin spin, std::size_t orbital) {
+Term density(Operator::Spin spin, std::size_t orbital) {
   return Term(
-      coefficient, {Operator::creation<S>(spin, orbital),
-                    Operator::annihilation<S>(spin, orbital)});
+      1.0, {Operator::creation<S>(spin, orbital),
+            Operator::annihilation<S>(spin, orbital)});
+}
+
+template <Operator::Statistics S>
+Term spin_flip(std::size_t orbital) {
+  return Term(
+      1.0, {Operator::creation<S>(Operator::Spin::Up, orbital),
+            Operator::annihilation<S>(Operator::Spin::Down, orbital)});
 }
 
 template <Operator::Statistics S>
 Term two_body(
-    Term::CoeffType coefficient, Operator::Spin spin1, std::size_t orbital1,
-    Operator::Spin spin2, std::size_t orbital2, Operator::Spin spin3,
-    std::size_t orbital3, Operator::Spin spin4, std::size_t orbital4) {
+    Operator::Spin spin1, std::size_t orbital1, Operator::Spin spin2,
+    std::size_t orbital2, Operator::Spin spin3, std::size_t orbital3,
+    Operator::Spin spin4, std::size_t orbital4) {
   return Term(
-      coefficient, {Operator::creation<S>(spin1, orbital1),
-                    Operator::annihilation<S>(spin2, orbital2),
-                    Operator::creation<S>(spin3, orbital3),
-                    Operator::annihilation<S>(spin4, orbital4)});
+      1.0, {Operator::creation<S>(spin1, orbital1),
+            Operator::annihilation<S>(spin2, orbital2),
+            Operator::creation<S>(spin3, orbital3),
+            Operator::annihilation<S>(spin4, orbital4)});
 }
 
 template <Operator::Statistics S>
 Term density_density(
-    Term::CoeffType coefficient, Operator::Spin spin1, std::size_t orbital1,
-    Operator::Spin spin2, std::size_t orbital2) {
+    Operator::Spin spin1, std::size_t orbital1, Operator::Spin spin2,
+    std::size_t orbital2) {
   return Term(
-      coefficient, {Operator::creation<S>(spin1, orbital1),
-                    Operator::annihilation<S>(spin1, orbital1),
-                    Operator::creation<S>(spin2, orbital2),
-                    Operator::annihilation<S>(spin2, orbital2)});
+      1.0, {Operator::creation<S>(spin1, orbital1),
+            Operator::annihilation<S>(spin1, orbital1),
+            Operator::creation<S>(spin2, orbital2),
+            Operator::annihilation<S>(spin2, orbital2)});
 }

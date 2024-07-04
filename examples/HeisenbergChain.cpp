@@ -25,9 +25,9 @@ class HeisenbergChain : public Model {
     }
 
     for (std::size_t i = 0; i < m_size; i++) {
-      result += m_J * spin_x(i) * spin_x((i + 1) % m_size);
-      result += m_J * spin_y(i) * spin_y((i + 1) % m_size);
-      result += m_J * spin_z(i) * spin_z((i + 1) % m_size);
+      result += -m_J * spin_x(i) * spin_x((i + 1) % m_size);
+      result += -m_J * spin_y(i) * spin_y((i + 1) % m_size);
+      result += -m_J * spin_z(i) * spin_z((i + 1) % m_size);
     }
     return result;
   }
@@ -61,6 +61,8 @@ static void analysis(
   arma::SpMat<std::complex<double>> m(basis.size(), basis.size());
 
   model.compute_matrix_elements(basis, m);
+  // std::cout << arma::cx_mat(m) << std::endl;
+  LIBMB_ASSERT(m.is_hermitian());
 
   arma::cx_vec eigval;
   arma::cx_mat eigvec;
@@ -75,11 +77,9 @@ static void analysis(
   std::vector<Term> sorted_terms =
       sorted_terms_from_eigvec(basis, ground_state);
 
-  std::cout << "Ground state, energy per site: "
-            << eigval(0) / static_cast<double>(model.size()) << std::endl;
+  std::cout << "Ground state: " << eigval(0) << std::endl;
 
-  const std::size_t states_to_print = 10;
-  for (std::size_t i = 0; i < states_to_print; i++) {
+  for (std::size_t i = 0; i < 4; i++) {
     std::cout << std::fixed
               << sorted_terms[i].coefficient() *
                      std::conj(sorted_terms[i].coefficient())
@@ -90,20 +90,23 @@ static void analysis(
 }
 
 int main() {
-  const int chain_size = 10;
-  const double small_h_field = 1e-4;
-  FermionicBasis basis(
-      chain_size, chain_size, /*allow_double_occupancy=*/false);
+  const int chain_size = 8;
+  const double J = 1.0;
+  const double small_h_field = 1e-9;
+  FermionicBasis basis(chain_size, chain_size, /*allow_double_occupancy=*/true);
 
   {
     std::cout << "Ferromagnetic Heisenberg Chain" << std::endl;
-    HeisenbergChain model(chain_size, -1.0, small_h_field);
+    std::cout << "Exact ground state: " << -0.25 * chain_size * J << std::endl;
+    HeisenbergChain model(chain_size, J, small_h_field);
     analysis(model, basis);
   }
 
   {
     std::cout << "Antiferromagnetic Heisenberg Chain" << std::endl;
-    HeisenbergChain model(chain_size, 1.0, small_h_field);
+    std::cout << "Exact ground state for infinite chain: "
+              << -chain_size * J * (log(2) - 0.25) << std::endl;
+    HeisenbergChain model(chain_size, -J, small_h_field);
     analysis(model, basis);
   }
 

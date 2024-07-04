@@ -89,26 +89,22 @@ NormalOrderer::OperatorsPhasePair NormalOrderer::sort_operators(
 }
 
 Expression commute(const Term& term1, const Term& term2) {
-  return NormalOrderer({term1.product(term2), term2.product(term1).negate()})
-      .expression();
+  return NormalOrderer({term1 * term2 - term2 * term1}).expression();
 }
 
 Expression commute(
     const Expression& expression1, const Expression& expression2) {
-  return NormalOrderer({expression1.product(expression2),
-                        expression2.product(expression1).negate()})
+  return NormalOrderer({expression1 * expression2 - expression2 * expression1})
       .expression();
 }
 
 Expression anticommute(const Term& term1, const Term& term2) {
-  return NormalOrderer({term1.product(term2), term2.product(term1)})
-      .expression();
+  return NormalOrderer({term1 * term2, term2 * term1}).expression();
 }
 
 Expression anticommute(
     const Expression& expression1, const Expression& expression2) {
-  return NormalOrderer({expression1.product(expression2),
-                        expression2.product(expression1)})
+  return NormalOrderer({expression1 * expression2 + expression2 * expression1})
       .expression();
   ;
 }

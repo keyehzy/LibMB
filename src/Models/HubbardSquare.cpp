@@ -29,7 +29,7 @@ void HubbardSquare::hopping_term(Expression& result) const {
 
 void HubbardSquare::interaction_term(Expression& result) const {
   for (size_t i1 = 0; i1 < m_nx * m_ny; i1++) {
-    result += density_density<Fermion>(
-        m_u, Operator::Spin::Up, i1, Operator::Spin::Down, i1);
+    result += m_u * density_density<Fermion>(
+                        Operator::Spin::Up, i1, Operator::Spin::Down, i1);
   }
 }

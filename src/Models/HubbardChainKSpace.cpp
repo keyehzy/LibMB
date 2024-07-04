@@ -38,7 +38,7 @@ void HubbardChainKSpace::interaction_term(Expression& result) const {
           if (((k2 + k4) % m_size == (k1 + k3) % m_size)) {
             double coeff = m_u / static_cast<double>(m_size);
             result +=
-                two_body<Fermion>(coeff, Up, k1, Up, k2, Down, k3, Down, k4);
+                coeff * two_body<Fermion>(Up, k1, Up, k2, Down, k3, Down, k4);
           }
         }
       }
