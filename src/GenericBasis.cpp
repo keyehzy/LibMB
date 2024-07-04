@@ -7,7 +7,7 @@ void GenericBasis::generate_combinations(
     BasisElement& current, std::size_t first_orbital, std::size_t depth,
     std::size_t max_depth) {
   if (m_basis_filter->filter(current)) {
-    m_basis_map.insert(current);
+    insert(current);
   }
 
   if (depth == max_depth) {

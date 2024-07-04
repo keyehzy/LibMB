@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 find_package(OpenMP REQUIRED)
+find_package(Boost REQUIRED COMPONENTS container)
 
 add_executable(
   main
@@ -51,4 +52,5 @@ target_link_libraries(
   libmb
   PUBLIC
   OpenMP::OpenMP_CXX
+  Boost::container
 )

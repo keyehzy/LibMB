@@ -8,7 +8,7 @@ void BosonicBasis::generate_combinations(
     std::size_t max_depth) {
   if (depth == max_depth) {
     if (m_basis_filter->filter(current)) {
-      m_basis_map.insert(current);
+      insert(current);
     }
     return;
   }

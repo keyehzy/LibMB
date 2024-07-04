@@ -61,7 +61,7 @@ void Basis::generate_combinations(
     BasisElement& current, size_t first_orbital, size_t depth,
     size_t max_depth) {
   if (m_basis_filter->filter(current)) {
-    m_basis_map.insert(current);
+    insert(current);
   }
 
   if (depth == max_depth) {
