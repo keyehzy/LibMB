@@ -1,4 +1,4 @@
-![Build Status](https://github.com/keyehzy/cctb/actions/workflows/cmake.yml/badge.svg)
+![Build Status](https://github.com/keyehzy/LibMB/actions/workflows/cmake.yml/badge.svg)
 # LibMB
 
 This project provides a C++ library for second-quantization calculations, enabling the representation and manipulation of quantum many-body systems using creation and annihilation operators. 
@@ -43,32 +43,28 @@ using enum Operator::Spin;        // Up, Down
 
 class HubbardChain : public Model {
  public:
-  HubbardChain(double t, double u, size_t n) : m_t(t), m_u(u), m_size(n) {}
+  HubbardChain(double mu, double t, double u, size_t n)
+      : m_mu(mu), m_t(t), m_u(u), m_size(n) {}
 
   ~HubbardChain() override {}
 
  private:
-  void hopping_term(Expression& result) const {
+  Expression hamiltonian() const override {
+    Expression result;
+
+    // Chemical potential and Hopping
     for (Operator::Spin spin : {Up, Down}) {
-      // Chemical potential and Hopping
       for (std::size_t i = 0; i < m_size; i++) {
         result += density<Fermion>(-m_mu, spin, i);
         result += hopping<Fermion>(-m_t, spin, i, (i + 1) % m_size);
       }
     }
-  }
 
-  void interaction_term(Expression& result) const {
+    // Hubbard U
     for (size_t i = 0; i < m_size; i++) {
-      // Hubbard U
       result += density_density<Fermion>(m_u, Up, i, Down, i);
     }
-  }
 
-  Expression hamiltonian() const override {
-    Expression result;
-    hopping_term(result);
-    interaction_term(result);
     return result;
   }
 
@@ -79,16 +75,17 @@ class HubbardChain : public Model {
 };
 
 int main() {
-  const std::size_t size = 8;
-  const std::size_t particles = 8;
+  const std::size_t size = 2;
+  const std::size_t particles = 2;
   const double mu = 0.0;
   const double t = 1.0;
   const double u = 2.0;
 
+  // Create the model
   HubbardChain model(mu, t, u, size);
 
-  // Construct a basis with total Spin_z equal to zero
-  FermionicBasis basis(size, particles, new TotalSpinFilter(0));
+  // Construct a basis
+  FermionicBasis basis(size, particles);
 
   // Compute matrix elements
   arma::SpMat<arma::cx_double> m(basis.size(), basis.size());
@@ -98,13 +95,11 @@ int main() {
   // Compute ground state using, e.g. Armadillo library
   arma::cx_vec eigval;
   arma::cx_mat eigvec;
-  const std::size_t eigval_count = 4;
+  const std::size_t eigval_count = 1;
   arma::eigs_gen(eigval, eigvec, m, eigval_count, "sr");
 
-  std::cout << "Eigenvalues:" << std::endl;
-  for (std::size_t i = 0; i < eigval.size(); i++) {
-    std::cout << eigval(i).real() << std::endl;
-  }
+  double gs_energy = eigval(0).real();
+  const arma::cx_vec& ground_state = eigvec.col(0);
 
   // Perform some further analysis here...
 }
