@@ -20,9 +20,7 @@ class Term {
 
   CoeffType coefficient() const { return m_coefficient; }
 
-  const std::vector<Operator>& operators() const {
-    return m_operators;
-  }
+  const std::vector<Operator>& operators() const { return m_operators; }
 
   std::vector<Operator>& operators() { return m_operators; }
 
@@ -31,11 +29,24 @@ class Term {
            m_operators == other.m_operators;
   }
 
-  bool operator!=(const Term& other) const {
-    return !(*this == other);
+  bool operator!=(const Term& other) const { return !(*this == other); }
+
+  Term& operator*=(const Term& other) {
+    m_coefficient *= other.coefficient();
+    m_operators.insert(
+        m_operators.end(), other.operators().begin(), other.operators().end());
+    return *this;
   }
 
-  friend std::ostream& operator<<(std::ostream& os, const Term& term);
+  Term& operator*=(const std::vector<Operator>& other) {
+    m_operators.insert(m_operators.end(), other.begin(), other.end());
+    return *this;
+  }
+
+  Term& operator*=(double other) {
+    m_coefficient *= other;
+    return *this;
+  }
 
   Term product(const Term& other) const {
     std::vector<Operator> new_operators = m_operators;
@@ -51,6 +62,16 @@ class Term {
         new_operators.end(), operators.begin(), operators.end());
     return Term(m_coefficient, new_operators);
   }
+
+  friend Term operator*(const Term& lhs, const Term& rhs) {
+    return lhs.product(rhs);
+  }
+
+  friend Term operator*(const Term& lhs, const std::vector<Operator>& rhs) {
+    return lhs.product(rhs);
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Term& term);
 
   Term adjoint() const {
     std::vector<Operator> adj_operators;
@@ -75,6 +96,14 @@ Term one_body(
   return Term(
       coefficient, {Operator::creation<S>(spin1, orbital1),
                     Operator::annihilation<S>(spin2, orbital2)});
+}
+
+template <Operator::Statistics S>
+Term density(
+    Term::CoeffType coefficient, Operator::Spin spin, std::size_t orbital) {
+  return Term(
+      coefficient, {Operator::creation<S>(spin, orbital),
+                    Operator::annihilation<S>(spin, orbital)});
 }
 
 template <Operator::Statistics S>

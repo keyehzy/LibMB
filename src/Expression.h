@@ -36,12 +36,19 @@ class Expression {
     }
   }
 
+  void insert(double coefficient) { m_terms[{}] += coefficient; }
+
   Expression& operator+=(const Expression& other) {
     insert(other);
     return *this;
   }
 
   Expression& operator+=(const Term& other) {
+    insert(other);
+    return *this;
+  }
+
+  Expression& operator+=(double other) {
     insert(other);
     return *this;
   }
