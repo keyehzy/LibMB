@@ -19,9 +19,7 @@ class Model {
   void compute_matrix_elements(const Basis& basis, SpMat& mat) const {
     const Expression& hamilt = hamiltonian();
 #pragma omp parallel for schedule(dynamic)
-    for (auto it = basis.elements().begin(); it != basis.elements().end();
-         it++) {
-      const BasisElement& basis_element = *it;
+    for (const BasisElement& basis_element : basis.elements()) {
       std::size_t basis_index = basis.index(basis_element);
       Expression::ExpressionMap product =
           NormalOrderer(hamilt * basis_element).terms();

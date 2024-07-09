@@ -4,7 +4,6 @@
 #pragma once
 
 #include <algorithm>
-#include <unordered_map>
 #include <vector>
 
 #include "BasisFilter.h"
@@ -52,7 +51,7 @@ class Basis {
 
   std::size_t index(const BasisElement& value) const {
     auto it = std::lower_bound(m_basis_set.begin(), m_basis_set.end(), value);
-    return static_cast<std::size_t>(std::distance(it, m_basis_set.begin()));
+    return static_cast<std::size_t>(std::distance(m_basis_set.begin(), it));
   }
 
   std::size_t size() const { return m_basis_set.size(); }
