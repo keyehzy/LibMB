@@ -4,7 +4,6 @@
 #pragma once
 
 #include <algorithm>
-#include <boost/container/flat_map.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -13,6 +12,8 @@
 #include "Pointers/NonnullOwnPtr.h"
 
 using BasisElement = std::vector<Operator>;
+
+bool operator<(const BasisElement& lhs, const BasisElement& rhs);
 
 class Basis {
  public:
@@ -30,43 +31,31 @@ class Basis {
 
   bool operator==(const Basis& other) const {
     return m_orbitals == other.m_orbitals && m_particles == other.m_particles &&
-           m_basis_map == other.m_basis_map;
+           m_basis_set == other.m_basis_set;
   }
 
   bool operator!=(const Basis& other) const { return !(*this == other); }
 
-  const boost::container::flat_map<BasisElement, std::size_t>& elements()
-      const {
-    return m_basis_map;
-  }
+  const std::vector<BasisElement>& elements() const { return m_basis_set; }
 
-  const BasisElement& element(std::size_t i) const {
-    auto it = m_basis_map.begin();
-    std::advance(it, i);
-    return it->first;
-  }
+  const BasisElement& element(std::size_t i) const { return m_basis_set[i]; }
 
   void insert(const BasisElement& value) {
-    m_basis_map[value] = m_basis_map.size();
+    auto it = std::lower_bound(m_basis_set.begin(), m_basis_set.end(), value);
+    m_basis_set.insert(it, value);
   }
 
-  bool contains(const BasisElement& term) const {
-    return m_basis_map.find(term) != m_basis_map.end();
+  bool contains(const BasisElement& value) const {
+    auto it = std::lower_bound(m_basis_set.begin(), m_basis_set.end(), value);
+    return it != m_basis_set.end() && *it == value;
   }
 
-  std::size_t index(const BasisElement& term) const {
-    return m_basis_map.at(term);
+  std::size_t index(const BasisElement& value) const {
+    auto it = std::lower_bound(m_basis_set.begin(), m_basis_set.end(), value);
+    return static_cast<std::size_t>(std::distance(it, m_basis_set.begin()));
   }
 
-  std::size_t size() const { return m_basis_map.size(); }
-
-  std::vector<BasisElement> elements_as_vector() const {
-    std::vector<BasisElement> v;
-    for (const auto& [element, index] : m_basis_map) {
-      v.push_back(element);
-    }
-    return v;
-  }
+  std::size_t size() const { return m_basis_set.size(); }
 
  protected:
   void generate_basis();
@@ -74,7 +63,7 @@ class Basis {
 
   std::size_t m_orbitals;
   std::size_t m_particles;
-  boost::container::flat_map<BasisElement, std::size_t> m_basis_map;
+  std::vector<BasisElement> m_basis_set;
   NonnullOwnPtr<BasisFilter> m_basis_filter;
 };
 

@@ -19,16 +19,18 @@ class Model {
   void compute_matrix_elements(const Basis& basis, SpMat& mat) const {
     const Expression& hamilt = hamiltonian();
 #pragma omp parallel for schedule(dynamic)
-    for (const auto& [basis_element, basis_index] : basis.elements()) {
+    for (auto it = basis.elements().begin(); it != basis.elements().end();
+         it++) {
+      const BasisElement& basis_element = *it;
+      std::size_t basis_index = basis.index(basis_element);
       Expression::ExpressionMap product =
           NormalOrderer(hamilt * basis_element).terms();
-      std::erase_if(product, [&](const auto& item) {
-        return !basis.contains(item.first);
-      });
       for (const auto& [term, coeff] : product) {
-        std::size_t term_index = basis.index(term);
+        if (basis.contains(term)) {
+          std::size_t term_index = basis.index(term);
 #pragma omp critical
-        mat(basis_index, term_index) = coeff;
+          mat(basis_index, term_index) = coeff;
+        }
       }
     }
   }

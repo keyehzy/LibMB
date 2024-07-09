@@ -7,6 +7,11 @@
 
 #include "Assert.h"
 
+bool operator<(const BasisElement& lhs, const BasisElement& rhs) {
+  return std::lexicographical_compare(
+      lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
 void prepare_up_and_down_representation(
     const BasisElement& element, std::vector<int>& up, std::vector<int>& down) {
   for (const auto& o : element) {
