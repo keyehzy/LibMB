@@ -16,14 +16,22 @@ class HubbardChain : public Model {
   ~HubbardChain() override {}
 
  private:
-  void hopping_term(Expression& result) const;
-
-  void interaction_term(Expression& result) const;
-
   Expression hamiltonian() const override {
     Expression result;
-    hopping_term(result);
-    interaction_term(result);
+
+    // Chemical potential and Hopping
+    for (Operator::Spin spin : {Up, Down}) {
+      for (std::size_t i = 0; i < m_size; i++) {
+        result += -m_mu * density<Fermion>(spin, i);
+        result += -m_t * hopping<Fermion>(spin, i, (i + 1) % m_size);
+      }
+    }
+
+    // Hubbard U
+    for (size_t i = 0; i < m_size; i++) {
+      result += m_u * density_density<Fermion>(Up, i, Down, i);
+    }
+
     return result;
   }
 
