@@ -30,10 +30,10 @@ class NormalOrderer {
  private:
   void normal_order(const std::vector<Operator>&, Term::CoeffType);
 
-  OperatorsPhasePair sort_operators(
-      std::vector<Operator>, std::size_t, std::deque<OperatorsPhasePair>&);
+  OperatorsPhasePair sort_operators(std::vector<Operator>&&, std::size_t);
 
   Expression::ExpressionMap m_terms_map;
+  std::deque<OperatorsPhasePair> m_queue;
 };
 
 Expression commute(const Term& term1, const Term& term2);

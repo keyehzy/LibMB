@@ -37,11 +37,10 @@ NormalOrderer::NormalOrderer(const std::vector<Expression>& expressions) {
 
 void NormalOrderer::normal_order(
     const std::vector<Operator>& operators, Term::CoeffType coefficient) {
-  std::deque<OperatorsPhasePair> queue;
-  queue.emplace_back(operators, 0);
-  while (!queue.empty()) {
-    auto [prev_operators, prev_phase] = std::move(queue.back());
-    queue.pop_back();
+  m_queue.emplace_back(operators, 0);
+  while (!m_queue.empty()) {
+    auto [prev_operators, prev_phase] = std::move(m_queue.back());
+    m_queue.pop_back();
 
     if (prev_operators.size() < 2) {
       m_terms_map[prev_operators] += evaluate_parity(coefficient, prev_phase);
@@ -49,14 +48,13 @@ void NormalOrderer::normal_order(
     }
 
     auto [new_operators, new_phase] =
-        sort_operators(prev_operators, prev_phase, queue);
+        sort_operators(std::move(prev_operators), prev_phase);
     m_terms_map[new_operators] += evaluate_parity(coefficient, new_phase);
   }
 }
 
 NormalOrderer::OperatorsPhasePair NormalOrderer::sort_operators(
-    std::vector<Operator> operators, std::size_t phase,
-    std::deque<OperatorsPhasePair>& queue) {
+    std::vector<Operator>&& operators, std::size_t phase) {
   for (std::size_t i = 1; i < operators.size(); ++i) {
     for (std::size_t j = i; j > 0; --j) {
       Operator& op1 = operators[j - 1];
@@ -65,23 +63,29 @@ NormalOrderer::OperatorsPhasePair NormalOrderer::sort_operators(
           op2.type() == Operator::Type::Creation &&
           op1.identifier() > op2.identifier()) {
         std::swap(op1, op2);
-        phase += op1.is_fermion() && op2.is_fermion();
+        if (op1.is_fermion()) {
+          phase += op2.is_fermion();
+        }
       } else if (
           op1.type() == Operator::Type::Annihilation &&
           op2.type() == Operator::Type::Annihilation &&
           op1.identifier() < op2.identifier()) {
         std::swap(op1, op2);
-        phase += op1.is_fermion() && op2.is_fermion();
+        if (op1.is_fermion()) {
+          phase += op2.is_fermion();
+        }
       } else if (
           op1.type() == Operator::Type::Annihilation &&
           op2.type() == Operator::Type::Creation) {
         if (op1.identifier() == op2.identifier()) {
           std::vector<Operator> elements(operators);
           elements.erase(elements.begin() + j - 1, elements.begin() + j + 1);
-          queue.emplace_back(std::move(elements), phase);
+          m_queue.emplace_back(std::move(elements), phase);
         }
         std::swap(op1, op2);
-        phase += op1.is_fermion() && op2.is_fermion();
+        if (op1.is_fermion()) {
+          phase += op2.is_fermion();
+        }
       }
     }
   }
