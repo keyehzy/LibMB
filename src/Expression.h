@@ -124,3 +124,11 @@ Expression spin_x(std::size_t i);
 Expression spin_y(std::size_t i);
 
 Expression spin_z(std::size_t i);
+
+Expression spin_dot(std::size_t i, std::size_t j);
+
+template <Operator::Statistics S>
+Expression total_density(std::size_t i) {
+  return density<S>(Operator::Spin::Up, i) +
+         density<S>(Operator::Spin::Down, i);
+}

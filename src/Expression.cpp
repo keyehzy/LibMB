@@ -111,3 +111,7 @@ Expression spin_y(std::size_t i) {
 Expression spin_z(std::size_t i) {
   return 0.5 * (density<Fermion>(Up, i) - density<Fermion>(Down, i));
 }
+
+Expression spin_dot(std::size_t i, std::size_t j) {
+  return spin_x(i) * spin_x(j) + spin_y(i) * spin_y(j) + spin_z(i) * spin_z(j);
+}
